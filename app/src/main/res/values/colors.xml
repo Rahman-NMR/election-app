@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="indigo_700">#0D47A1</color>
+    <color name="indigo_500">#1976D2</color>
+    <color name="cyan_200">#80DEEA</color>
+    <color name="cyan_700">#0097A7</color>
+
+    <color name="surface_container">#F5F5F5</color>
+
+    <color name="blue_grey_700">#455A64</color>
+    <color name="grey_500">#9E9E9E</color>
+    <color name="grey_700">#616161</color>
+    <color name="outline_variant">#CAC4D0</color>
+</resources>
