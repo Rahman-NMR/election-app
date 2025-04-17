@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp">
+    <!--todo: re~UI-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_margin="8dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toBottomOf="@id/nik"
+            app:layout_constraintEnd_toStartOf="@id/nik"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/nik" />
+
+        <TextView
+            android:id="@+id/nik"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_corner_99_men"
+            android:gravity="center"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="@string/strip"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_margin="8dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toBottomOf="@+id/nik"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/nik"
+            app:layout_constraintTop_toTopOf="@+id/nik" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_nik"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:barrierMargin="8dp"
+            app:constraint_referenced_ids="nik" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/evidence_photo"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/img_broken_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_nik"
+            app:shapeAppearanceOverlay="@style/roundedImageView" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:barrierMargin="16dp"
+            app:constraint_referenced_ids="evidence_photo" />
+
+        <TextView
+            android:id="@+id/name"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/name_x"
+            app:layout_constraintTop_toBottomOf="@id/barrier_nik" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/data_name"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/strip"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/name" />
+
+        <TextView
+            android:id="@+id/address"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/address_x"
+            app:layout_constraintTop_toBottomOf="@id/data_name" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/data_address"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/strip"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/address" />
+
+        <TextView
+            android:id="@+id/registration_date"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/date_x"
+            app:layout_constraintTop_toBottomOf="@id/data_address" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/data_registration_date"
+            style="@style/ListItem.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/strip"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/registration_date" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

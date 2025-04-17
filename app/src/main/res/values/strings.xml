@@ -1,42 +1,66 @@
 <resources>
     <string name="app_name">Pemilu App</string>
-    <string name="informasi_pemilhan">Informasi Pemilihan</string>
-    <string name="form_entry_data">Form Entry Data</string>
-    <string name="lihat_data">Lihat Data</string>
-    <string name="data_tidak_ditemukan">Data tidak ditemukan</string>
-    <string name="strip">-</string>
-    <string name="titikdua">:  </string>
+    <string name="strip" translatable="false">-</string>
+    <string name="colon" translatable="false">:  </string>
+    <string name="data_not_found">Data tidak ditemukan</string>
+
+    <!--    main menu-->
+    <string name="election_information">Informasi Pemilihan</string>
+    <string name="form_entry_data">Form Entri Data</string>
+    <string name="show_data">Lihat Data</string>
+    <string name="logout">Keluar</string>
+    <string name="election_data">Data Pemilihan</string>
 
     <!--    button-->
-    <string name="pilih">Pilih</string>
-    <string name="cek_lokasi">Cek Lokasi</string>
-    <string name="submit_data">Submit Data</string>
-    <string name="masuk">Masuk</string>
-    <string name="daftar">Daftar</string>
-    <string name="buka_galeri">Buka Galeri</string>
-    <string name="buka_kamera">Buka Kamera</string>
-    <string name="buka_website">Buka Website</string>
+    <string name="submit_data">Tambah Data</string>
+    <string name="signin">Masuk</string>
+    <string name="signup">Daftar</string>
+    <string name="btn_continue">Lanjutkan</string>
+    <string name="choose_from_gallery">Pilih dari galeri</string>
+    <string name="take_a_picture">Ambil gambar</string>
 
     <!--    hint-->
-    <string name="masukan_nik">Masukan NIK</string>
-    <string name="masukan_nama">Masukan nama</string>
-    <string name="masukan_no_hp">Masukan nomor HP</string>
-    <string name="masukan_alamat">Masukan alamat</string>
-    <string name="pilih_tanggal">Pilih tanggal</string>
+    <string name="enter_nik">Masukan NIK</string>
+    <string name="enter_name">Masukan nama</string>
+    <string name="enter_phone">Masukan nomor hp</string>
+    <string name="select_date">Pilih tanggal</string>
+    <string name="enter_address">Masukan alamat</string>
 
+    <!--    string format-->
+    <string name="fill_your_x">Mohon lengkapi data %1$s</string>
+    <string name="nik_x">NIK : %1$s</string>
+    <string name="name_x">Nama :</string>
+    <string name="address_x">Alamat :</string>
+    <string name="date_x">Tanggal Pendataan :</string>
+
+    <!--    ui-->
     <string name="nik">NIK</string>
-    <string name="nama">Nama</string>
-    <string name="no_hp">No. HP</string>
-    <string name="jenis_kelamin">Jenis Kelamin</string>
-    <string name="tanggal">Tanggal</string>
-    <string name="alamat">Alamat</string>
-    <string name="gambar">Gambar</string>
-    <string name="laki_laki">Laki-Laki</string>
-    <string name="perempuan">Perempuan</string>
-    <string name="lokasi">Lokasi</string>
-    <string name="password">Password</string>
-    <string name="konfirmasi_password">Konfirmasi password</string>
-    <string name="hapus">Hapus</string>
-    <string name="web_info_pemilu">https://infopemilu.kpu.go.id/</string>
-    <string name="informasi_pemilihan_msg">Informasi Pemilihan dapat dilihat pada website berikut :</string>
+    <string name="name">Nama</string>
+    <string name="phone">Nomor HP</string>
+    <string name="gender">Jenis Kelamin</string>
+    <string name="date">Tanggal</string>
+    <string name="address">Alamat</string>
+    <string name="evidence_process">Bukti Pendataan</string>
+    <string name="male">Laki-Laki</string>
+    <string name="female">Perempuan</string>
+    <string name="password">Kata sandi</string>
+    <string name="confirm_password">Konfirmasi Kata Sandi</string>
+    <string name="delete">Hapus</string>
+    <string name="cancel">Batalkan</string>
+    <string name="header_check_nik">Periksa NIK</string>
+    <string name="body_check_nik">NIK akan diperiksa apakah sudah terdaftar atau belum.</string>
+    <string name="delete_dialog_title">Hapus data pemilih?</string>
+    <string name="delete_dialog_message">Data pemilih akan dihapus dari daftar pemilih.</string>
+
+    <!--    response message-->
+    <string name="permission_denied">Izin ditolak</string>
+    <string name="failed_get_current_location">Gagal mendapatkan lokasi terkini</string>
+    <string name="save_data_success">Data berhasil disimpan</string>
+    <string name="save_data_failed">Gagal menyimpan data</string>
+    <string name="nik_registered">NIK sudah terdaftar</string>
+    <string name="nik_length_error">NIK kurang dari 16 karakter</string>
+    <string name="nik_digit_error">NIK harus berupa angka</string>
+    <string name="nik_cant_null">NIK tidak boleh kosong</string>
+    <string name="delete_success">Data berhasil dihapus</string>
+    <string name="delete_failed">Gagal menghapus data</string>
 </resources>

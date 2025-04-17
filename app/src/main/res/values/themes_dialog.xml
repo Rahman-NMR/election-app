@@ -1,0 +1,21 @@
+<resources>
+
+    <style name="alertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MyDialogTitle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MyDialogMessage</item>
+    </style>
+
+    <style name="MyDialogTitle" parent="@style/MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/blue_grey_700</item>
+    </style>
+
+    <style name="MyDialogMessage" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/grey_700</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+</resources>

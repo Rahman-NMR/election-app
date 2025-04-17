@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/enter_nav_graph"
+    app:startDestination="@id/nikFragment">
+
+    <fragment
+        android:id="@+id/nikFragment"
+        android:name="com.rahman.pemiluapp.view.ui.entryData.NikFragment"
+        android:label="fragment_nik"
+        tools:layout="@layout/fragment_nik">
+
+        <action
+            android:id="@+id/action_nikFragment_to_formFragment"
+            app:destination="@id/formFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_nikFragment_to_voterDataFragment"
+            app:destination="@id/voterDataFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/formFragment"
+        android:name="com.rahman.pemiluapp.view.ui.entryData.FormFragment"
+        android:label="fragment_form"
+        tools:layout="@layout/fragment_form">
+
+        <argument
+            android:name="inputData"
+            android:defaultValue='""'
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/voterDataFragment"
+        android:name="com.rahman.pemiluapp.view.ui.dataEntered.VoterDataFragment"
+        android:label="fragment_voter_data"
+        tools:layout="@layout/fragment_voter_data">
+
+        <argument
+            android:name="inputData"
+            android:defaultValue='""'
+            app:argType="string" />
+    </fragment>
+</navigation>

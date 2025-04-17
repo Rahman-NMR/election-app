@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Election App</string>
+    <string name="data_not_found">Data not found</string>
+
+    <!--    main menu-->
+    <string name="election_information">Election Info</string>
+    <string name="form_entry_data">Form Entry Data</string>
+    <string name="show_data">Show Data</string>
+    <string name="logout">Log out</string>
+    <string name="election_data">Election Data</string>
+
+    <!--    button-->
+    <string name="submit_data">Add Data</string>
+    <string name="signin">Login</string>
+    <string name="signup">Register</string>
+    <string name="btn_continue">Continue</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="take_a_picture">Take a picture</string>
+
+    <!--    hint-->
+    <string name="enter_nik">Enter id card</string>
+    <string name="enter_name">Enter name</string>
+    <string name="enter_phone">Enter phone number</string>
+    <string name="select_date">Select date</string>
+    <string name="enter_address">Enter address</string>
+
+    <!--    string format-->
+    <string name="fill_your_x">Please fill your %1$s</string>
+    <string name="nik_x">Identity ID : %1$s</string>
+    <string name="name_x">Name :</string>
+    <string name="address_x">Address :</string>
+    <string name="date_x">Data collection date :</string>
+
+    <!--    ui-->
+    <string name="nik">Identity ID</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone number</string>
+    <string name="gender">Gender</string>
+    <string name="date">Date</string>
+    <string name="address">Address</string>
+    <string name="evidence_process">Evidence of Data</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="header_check_nik">Check Identity ID</string>
+    <string name="body_check_nik">Identity ID will be checked whether it has been registered or not.</string>
+    <string name="delete_dialog_title">Delete voter data?</string>
+    <string name="delete_dialog_message">Data will be deleted from the voter list.</string>
+
+    <!--    response message-->
+    <string name="permission_denied">Permission denied</string>
+    <string name="failed_get_current_location">Failed to get current location</string>
+    <string name="save_data_success">Data saved successfully</string>
+    <string name="save_data_failed">Failed to save data</string>
+    <string name="nik_registered">Identity ID already registered</string>
+    <string name="nik_length_error">Identity ID less than 16 characters</string>
+    <string name="nik_digit_error">Identity ID must be a number</string>
+    <string name="nik_cant_null">Identity ID cannot be empty</string>
+    <string name="delete_success">Data deleted successfully</string>
+    <string name="delete_failed">Failed to delete data</string>
+</resources>

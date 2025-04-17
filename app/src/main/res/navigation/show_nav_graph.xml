@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/shown_nav_graph"
+    app:startDestination="@id/votersDataListFragment">
+
+    <fragment
+        android:id="@+id/votersDataListFragment"
+        android:name="com.rahman.pemiluapp.view.ui.dataEntered.VotersDataListFragment"
+        android:label="fragment_voters_data_list"
+        tools:layout="@layout/fragment_voters_data_list">
+
+        <action
+            android:id="@+id/action_votersDataListFragment_to_voterDataFragment"
+            app:destination="@id/voterDataFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/voterDataFragment"
+        android:name="com.rahman.pemiluapp.view.ui.dataEntered.VoterDataFragment"
+        android:label="fragment_voter_data"
+        tools:layout="@layout/fragment_voter_data">
+
+        <argument
+            android:name="inputData"
+            android:defaultValue='""'
+            app:argType="string" />
+    </fragment>
+</navigation>

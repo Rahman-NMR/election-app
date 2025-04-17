@@ -1,0 +1,34 @@
+<resources>
+
+    <style name="textView.sub.title" parent="Theme.PemiluApp">
+        <item name="android:textColor">@color/blue_grey_700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="layout_constrainedWidth">true</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintHorizontal_bias">0.0</item>
+    </style>
+
+    <style name="FormInput.EntryDataLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusBottomStart">@dimen/cornerInputLayout</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/cornerInputLayout</item>
+        <item name="boxCornerRadiusTopStart">@dimen/cornerInputLayout</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/cornerInputLayout</item>
+        <item name="endIconMode">clear_text</item>
+        <item name="expandedHintEnabled">false</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="counterEnabled">true</item>
+    </style>
+
+    <style name="ListItem.TextView" parent="">
+        <item name="android:gravity">start</item>
+        <item name="android:textColor">"@color/grey_700"</item>
+        <item name="android:textSize">14sp</item>
+        <item name="layout_constrainedWidth">true</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintHorizontal_bias">0.0</item>
+        <item name="layout_constraintStart_toEndOf">@id/barrier_picture</item>
+    </style>
+</resources>

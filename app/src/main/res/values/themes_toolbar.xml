@@ -1,0 +1,17 @@
+<resources>
+
+    <style name="toolbarText" parent="TextAppearance.MaterialComponents.Button">
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/roboto_bold</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="kostum.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/white</item>
+        <item name="theme">@style/Theme.PemiluApp</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="titleTextAppearance">@style/toolbarText</item>
+    </style>
+</resources>
