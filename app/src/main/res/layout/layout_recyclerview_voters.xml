@@ -8,7 +8,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp">
-    <!--todo: re~UI-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             android:paddingVertical="4dp"
             android:text="@string/strip"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="14sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,9 +62,10 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/evidence_photo"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:background="@drawable/img_broken_image"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/img_broken_image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier_nik"
             app:shapeAppearanceOverlay="@style/roundedImageView" />
@@ -79,58 +80,57 @@
 
         <TextView
             android:id="@+id/name"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Header.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/name_x"
+            android:layout_marginTop="0dp"
+            android:text="@string/name"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/barrier_nik" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/data_name"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Body.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/strip"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/name" />
 
         <TextView
             android:id="@+id/address"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Header.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/address_x"
+            android:text="@string/address"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/data_name" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/data_address"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Body.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/strip"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/address" />
 
         <TextView
             android:id="@+id/registration_date"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Header.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/date_x"
+            android:text="@string/registration_date"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/data_address" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/data_registration_date"
-            style="@style/ListItem.TextView"
+            style="@style/DataText.Body.List"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/strip"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/barrier_picture"
             app:layout_constraintTop_toBottomOf="@id/registration_date" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

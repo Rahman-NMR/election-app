@@ -7,12 +7,14 @@ import java.util.Locale
 import java.util.TimeZone
 
 object DateFormatter {
-    val timeStamp: String = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(Date())
+    const val DATE_TIME_FORMAT: String = "Asia/Jakarta"
+    val currentTime: Long get() = System.currentTimeMillis() // get() for refresh current time when call
+    val timeStamp: String get() = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(Date(currentTime))
 
-    fun formatDate(timestampDate: Long, targetTimeZone: String): String {
+    fun formatDate(timestampDate: Long): String {
         val currentDate = Date(timestampDate)
         val sdf = SimpleDateFormat("d MMMM yyyy", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone(targetTimeZone)
+        sdf.timeZone = TimeZone.getTimeZone(DATE_TIME_FORMAT)
         return sdf.format(currentDate)
     }
 
@@ -20,7 +22,7 @@ object DateFormatter {
         when {
             timestampString.isNullOrEmpty() -> ""
             else -> {
-                formatDate(timestampString.toLong(), "Asia/Jakarta")
+                formatDate(timestampString.toLong())
             }
         }
     } catch (_: Exception) {

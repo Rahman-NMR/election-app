@@ -4,16 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rahman.pemiluapp.R
 import com.rahman.pemiluapp.databinding.FragmentVotersDataListBinding
+import com.rahman.pemiluapp.domain.util.onError
+import com.rahman.pemiluapp.domain.util.onFailure
+import com.rahman.pemiluapp.domain.util.onSuccess
+import com.rahman.pemiluapp.utils.DisplayMessage.showToast
+import com.rahman.pemiluapp.utils.EditInputText.hideKeyboard
 import com.rahman.pemiluapp.utils.SpacingDecoration
 import com.rahman.pemiluapp.view.adapter.VoterListAdapter
-import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
 import com.rahman.pemiluapp.view.viewmodel.ShowDataViewModel
+import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
 
 class VotersDataListFragment : Fragment() {
     private var _binding: FragmentVotersDataListBinding? = null
@@ -32,9 +38,40 @@ class VotersDataListFragment : Fragment() {
         val votersListAdapter = configureVoterListAdapter()
         binding.setupAdapter(votersListAdapter)
 
-        viewModel.votersData.observe(viewLifecycleOwner) { data ->
-            votersListAdapter.submitList(data)
+        binding.onSwipeToRefresh()
+        initializeSearch()
+
+        viewModel.responseLiveData.observe(viewLifecycleOwner) { response ->
+            response.onSuccess { data -> votersListAdapter.submitList(data) }
+                .onFailure { votersListAdapter.submitList(emptyList()) }
+                .onError { msg -> if (!msg.isNullOrEmpty()) showToast(requireContext(), msg) }
         }
+    }
+
+    private fun FragmentVotersDataListBinding.onSwipeToRefresh() {
+        swipeRefresh.setOnRefreshListener {
+            hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext()))
+            searchVoter.setQuery("", false)
+            searchVoter.clearFocus()
+
+            viewModel.getAllVoters()
+            swipeRefresh.isRefreshing = false
+        }
+    }
+
+    private fun initializeSearch() {
+        val searchListener = object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext()))
+                viewModel.searchVoter(query)
+
+                return true
+            }
+
+            override fun onQueryTextChange(s: String?) = false
+        }
+
+        binding.searchVoter.setOnQueryTextListener(searchListener)
     }
 
     private fun configureVoterListAdapter() = VoterListAdapter { selectedVoter ->

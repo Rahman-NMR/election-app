@@ -27,6 +27,17 @@
             android:paddingTop="16dp"
             android:paddingBottom="40dp">
 
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/input_data_prog_indic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_nik"
                 style="@style/FormInput.EntryDataLayout"
@@ -195,6 +206,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_evidence_photo"
+                app:layout_constraintWidth_max="480dp"
                 app:shapeAppearanceOverlay="@style/roundedImageView"
                 app:srcCompat="@drawable/img_broken_image" />
 

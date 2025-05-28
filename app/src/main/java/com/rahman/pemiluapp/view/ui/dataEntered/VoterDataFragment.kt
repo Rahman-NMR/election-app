@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -14,10 +15,12 @@ import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.databinding.FragmentVoterDataBinding
 import com.rahman.pemiluapp.utils.DialogPopup
 import com.rahman.pemiluapp.utils.DisplayMessage.showToast
-import com.rahman.pemiluapp.utils.Response
-import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
+import com.rahman.pemiluapp.domain.util.onError
+import com.rahman.pemiluapp.domain.util.onFailure
+import com.rahman.pemiluapp.domain.util.onLoading
+import com.rahman.pemiluapp.domain.util.onSuccess
 import com.rahman.pemiluapp.view.viewmodel.ShowDataViewModel
-import kotlin.getValue
+import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
 
 class VoterDataFragment : Fragment() {
     private var _binding: FragmentVoterDataBinding? = null
@@ -40,55 +43,79 @@ class VoterDataFragment : Fragment() {
     }
 
     private fun loadVoterData(safeArgsData: String) {
-        viewModel.getDataVoter(safeArgsData) { result ->
-            when (result) {
-                is Response.Success -> binding.voterUI(result)
-                is Response.Failure -> showToast(requireContext(), getString(R.string.data_not_found))
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
+        viewModel.getDataVoter(safeArgsData) { response ->
+            response.onLoading { loadingIndicator(true) }
+                .onSuccess { data ->
+                    loadingIndicator(false)
+
+                    binding.voterUI(data)
+                }.onFailure {
+                    loadingIndicator(false)
+
+                    showToast(requireContext(), getString(R.string.data_not_found))
+                }.onError { msg ->
+                    loadingIndicator(false)
+
+                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
+                }
         }
     }
 
-    private fun FragmentVoterDataBinding.voterUI(result: Response.Success) {
-        val voter = result.data as VoterDataModel
+    private fun FragmentVoterDataBinding.voterUI(voter: VoterDataModel?) {
+        val dataNotFound = getString(R.string.data_not_found)
 
-        nikPemilih.text = voter.nik
-        namaPemilih.text = voter.nama
-        nohpPemilih.text = voter.nohp
-        jkPemilih.text = if (voter.jk == true) getString(R.string.male) else getString(R.string.female)
-        tanggalPemilih.text = voter.tanggal
-        alamatPemilih.text = voter.alamat
+        voter?.let {
+            subbheaderCard.text = getString(R.string.nik_x, it.nik?.ifEmpty { dataNotFound })
+            nameBody.text = it.nama?.ifEmpty { dataNotFound }
+            phoneBody.text = it.nohp?.ifEmpty { dataNotFound }
+            genderBody.text = it.jk?.let { isMale ->
+                if (isMale) getString(R.string.male) else getString(R.string.female)
+            } ?: getString(R.string.data_not_found)
+            dateBody.text = it.tanggal?.ifEmpty { dataNotFound }
+            addressBody.text = it.alamat?.ifEmpty { dataNotFound }
 
-        Glide.with(requireContext())
-            .load(voter.gambar?.toUri())
-            .placeholder(R.drawable.img_broken_image)
-            .error(R.drawable.img_broken_image)
-            .into(gambarPemilihNotnull)
+            Glide.with(requireContext())
+                .load(it.gambar?.toUri())
+                .placeholder(R.drawable.img_broken_image)
+                .error(R.drawable.img_broken_image)
+                .into(evidenceImage)
+        } ?: showToast(requireContext(), dataNotFound)
+
     }
 
-    private fun showDeleteVoterConfirmation(safeArgsData: String) {
+    private fun showDeleteVoterConfirmation(safeArgsData: String?) {
+        val nik = safeArgsData ?: getString(R.string.strip)
+
         DialogPopup.showAlertDialog(
             getString(R.string.delete_dialog_title),
-            getString(R.string.delete_dialog_message),
+            getString(R.string.delete_dialog_message, getString(R.string.nik), nik),
             getString(R.string.delete),
             requireContext()
         ) { processVoterDeletion(safeArgsData) }
     }
 
-    private fun processVoterDeletion(safeArgsData: String) {
-        viewModel.deleteDataVoter(safeArgsData) { result ->
-            when (result) {
-                is Response.Success -> {
+    private fun processVoterDeletion(nik: String?) {
+        viewModel.deleteDataVoter(nik) { response ->
+            response.onLoading { loadingIndicator(true) }
+                .onSuccess {
+                    loadingIndicator(false)
+
                     showToast(requireContext(), getString(R.string.delete_success))
                     findNavController().popBackStack()
-                }
+                }.onFailure {
+                    loadingIndicator(false)
 
-                is Response.Failure -> showToast(requireContext(), getString(R.string.delete_failed))
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
+                    showToast(requireContext(), getString(R.string.delete_failed))
+                }.onError { msg ->
+                    loadingIndicator(false)
+
+                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
+                }
         }
+    }
+
+    private fun loadingIndicator(isLoading: Boolean) {
+        binding.dataDetailProgIndic.isVisible = isLoading
     }
 
     override fun onDestroyView() {

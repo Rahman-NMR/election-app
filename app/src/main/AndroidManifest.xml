@@ -13,6 +13,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
@@ -27,6 +30,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.PemiluApp"
         tools:targetApi="31">
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}"
@@ -41,11 +45,14 @@
             android:name=".view.ui.information.InformationActivity"
             android:exported="false" />
         <activity
-            android:name=".view.ui.auth.RegisterActivity"
+            android:name=".view.ui.entryData.FormEntryActivity"
             android:exported="false"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".view.ui.auth.LoginActivity"
+            android:name=".view.ui.dataEntered.ShowDataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.PemiluApp.splash"
             android:windowSoftInputMode="stateVisible|adjustResize">
@@ -55,16 +62,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".view.ui.dataEntered.ShowDataActivity"
-            android:exported="false" />
-        <activity
-            android:name=".view.ui.entryData.FormEntryActivity"
-            android:exported="false"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity
-            android:name=".view.ui.MainActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

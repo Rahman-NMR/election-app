@@ -18,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:contentInsetStartWithNavigation="0dp"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:navigationIcon="@drawable/baseline_close_24"
             app:title="@string/election_information" />
     </com.google.android.material.appbar.AppBarLayout>

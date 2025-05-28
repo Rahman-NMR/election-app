@@ -12,6 +12,7 @@ class ViewModelFactory private constructor(private val usecase: DataUsecase) : V
         return when {
             modelClass.isAssignableFrom(EntryDataViewModel::class.java) -> EntryDataViewModel(usecase) as T
             modelClass.isAssignableFrom(ShowDataViewModel::class.java) -> ShowDataViewModel(usecase) as T
+            modelClass.isAssignableFrom(DataIOViewModel::class.java) -> DataIOViewModel(usecase) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

@@ -7,19 +7,16 @@
     <string name="election_information">Election Info</string>
     <string name="form_entry_data">Form Entry Data</string>
     <string name="show_data">Show Data</string>
-    <string name="logout">Log out</string>
-    <string name="election_data">Election Data</string>
+    <string name="exit">Exit</string>
 
     <!--    button-->
     <string name="submit_data">Add Data</string>
-    <string name="signin">Login</string>
-    <string name="signup">Register</string>
     <string name="btn_continue">Continue</string>
-    <string name="choose_from_gallery">Choose from gallery</string>
-    <string name="take_a_picture">Take a picture</string>
+    <string name="from_gallery">Gallery</string>
+    <string name="from_camera">Camera</string>
 
     <!--    hint-->
-    <string name="enter_nik">Enter id card</string>
+    <string name="enter_nik">Enter identity ID</string>
     <string name="enter_name">Enter name</string>
     <string name="enter_phone">Enter phone number</string>
     <string name="select_date">Select date</string>
@@ -28,9 +25,8 @@
     <!--    string format-->
     <string name="fill_your_x">Please fill your %1$s</string>
     <string name="nik_x">Identity ID : %1$s</string>
-    <string name="name_x">Name :</string>
-    <string name="address_x">Address :</string>
-    <string name="date_x">Data collection date :</string>
+    <string name="io_data_success">>%1$s data successfully</string>
+    <string name="file_path">File Location: %1$s</string>
 
     <!--    ui-->
     <string name="nik">Identity ID</string>
@@ -38,18 +34,28 @@
     <string name="phone">Phone number</string>
     <string name="gender">Gender</string>
     <string name="date">Date</string>
+    <string name="registration_date">Data collection date</string>
     <string name="address">Address</string>
     <string name="evidence_process">Evidence of Data</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
-    <string name="password">Password</string>
-    <string name="confirm_password">Confirm Password</string>
+    <string name="close">Close</string>
+    <string name="election_data">Election Data</string>
+    <string name="data_detail">Data Detail</string>
+    <string name="choose_image">Choose Image</string>
     <string name="header_check_nik">Check Identity ID</string>
+    <string name="find_voter">Search by Identity ID, Name, or Address</string>
     <string name="body_check_nik">Identity ID will be checked whether it has been registered or not.</string>
-    <string name="delete_dialog_title">Delete voter data?</string>
-    <string name="delete_dialog_message">Data will be deleted from the voter list.</string>
+
+    <!--    dialog-->
+    <string name="delete_dialog_title">Delete Voter Data?</string>
+    <string name="delete_dialog_message">Data of voter with %1$s %2$s will be deleted from the voter list.</string>
+    <string name="import_dialog_title">Import data?</string>
+    <string name="import_dialog_message">Data from JSON file will be added or updated based on the existence of %1$s from the data in the application.</string>
+    <string name="export_dialog_title">Export Voter Data?</string>
+    <string name="export_dialog_message">All voter data will be exported to JSON format. The related image files will be moved to the same location with the JSON file.</string>
 
     <!--    response message-->
     <string name="permission_denied">Permission denied</string>
@@ -62,4 +68,9 @@
     <string name="nik_cant_null">Identity ID cannot be empty</string>
     <string name="delete_success">Data deleted successfully</string>
     <string name="delete_failed">Failed to delete data</string>
+    <string name="convert_uri_fail">Error occurred while inserting file</string>
+    <string name="uri_is_null">File location not found</string>
+    <string name="same_data">Data totally same with existing data</string>
+    <string name="empty_file">Error occurred while reading file</string>
+    <string name="export_data_failed">Failed to export data</string>
 </resources>

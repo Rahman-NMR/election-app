@@ -4,18 +4,16 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.CAMERA
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -26,15 +24,18 @@ import com.rahman.pemiluapp.R
 import com.rahman.pemiluapp.data.model.CoordinateModel
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.databinding.FragmentFormBinding
+import com.rahman.pemiluapp.domain.util.onError
+import com.rahman.pemiluapp.domain.util.onFailure
+import com.rahman.pemiluapp.domain.util.onLoading
+import com.rahman.pemiluapp.domain.util.onSuccess
 import com.rahman.pemiluapp.utils.DateFormatter.formatDate
+import com.rahman.pemiluapp.utils.DisplayMessage.showSnackbar
 import com.rahman.pemiluapp.utils.DisplayMessage.showToast
 import com.rahman.pemiluapp.utils.EditInputText.hideKeyboard
-import com.rahman.pemiluapp.utils.ImageOperation.getImageDir
 import com.rahman.pemiluapp.utils.ImageOperation.reImaged
 import com.rahman.pemiluapp.utils.ImageOperation.reduceFileImage
-import com.rahman.pemiluapp.utils.ImageOperation.uriToFile
 import com.rahman.pemiluapp.utils.PermissionChecker.checkPermission
-import com.rahman.pemiluapp.utils.Response
+import com.rahman.pemiluapp.utils.UriConverter.uriToImageFile
 import com.rahman.pemiluapp.view.viewmodel.EntryDataViewModel
 import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
 
@@ -42,27 +43,14 @@ class FormFragment : Fragment() {
     private var _binding: FragmentFormBinding? = null
     private val binding get() = _binding!!
 
-    private var currentImageUri: Uri? = null
-    private var timestamp: Long = 0
-
     private val viewModel: EntryDataViewModel by activityViewModels { ViewModelFactory.getInstance(requireContext()) }
     private val fusedLocationClient: FusedLocationProviderClient by lazy { LocationServices.getFusedLocationProviderClient(requireContext()) }
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-        if (isSuccess) viewModel.saveImageUri(currentImageUri)
-        else viewModel.saveImageUri(null)
-    }
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri: Uri? ->
-        if (imageUri != null) {
-            currentImageUri = imageUri
-            viewModel.saveImageUri(imageUri)
-        }
-    }
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
         val allPermissionsGranted = permission.all { it.value }
 
         if (allPermissionsGranted) {
-            if (permission.keys.contains(CAMERA)) openCamera()
+            if (permission.keys.contains(CAMERA)) showBottomsheet()
             if (permission.keys.contains(ACCESS_FINE_LOCATION) || permission.keys.contains(ACCESS_COARSE_LOCATION)) permissionLocation()
         } else showToast(requireContext(), getString(R.string.permission_denied))
     }
@@ -83,10 +71,13 @@ class FormFragment : Fragment() {
     }
 
     private fun FragmentFormBinding.viewModelObserver() {
-        viewModel.currentImageUri.observe(viewLifecycleOwner) { uri ->
-            currentImageUri = uri
+        viewModel.timestamp.observe(viewLifecycleOwner) { timestamp ->
+            insertDate.setText(formatDate(timestamp))
+        }
 
+        viewModel.currentImageUri.observe(viewLifecycleOwner) { uri ->
             Glide.with(requireContext()).load(uri)
+                .transform(CenterCrop())
                 .apply(RequestOptions().centerInside())
                 .placeholder(R.drawable.img_broken_image)
                 .error(R.drawable.img_broken_image)
@@ -100,34 +91,17 @@ class FormFragment : Fragment() {
 
         layoutDate.setEndIconOnClickListener { selectDate() }
         layoutAddress.setEndIconOnClickListener { permissionLocation() }
-        insertEvidencePhoto.setOnClickListener { v ->
-            val popup = PopupMenu(v.context, v)
-
-            popup.menuInflater.inflate(R.menu.menu_choose_image, popup.menu)
-            popup.setOnMenuItemClickListener { item -> actionMenu(item) }
-            popup.show()
-        }
+        insertEvidencePhoto.setOnClickListener { showBottomsheet() }
     }
 
-//    todo: ui menu difficult to use
-    private fun actionMenu(item: MenuItem) = when (item.itemId) {
-        R.id.from_camera -> {
-            openCamera()
-            true
-        }
-
-        R.id.from_gallery -> {
-            galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            true
-        }
-
-        else -> false
+    private fun loadingState(isLoading: Boolean) {
+        binding.inputDataProgIndic.isVisible = isLoading
     }
 
-    private fun openCamera() {
+    private fun showBottomsheet() {
         if (checkPermission(requireContext(), CAMERA)) {
-            currentImageUri = getImageDir(requireContext())
-            cameraLauncher.launch(currentImageUri)
+            val bottomSheet = ChooseImageBottomsheet()
+            bottomSheet.show(childFragmentManager, bottomSheet.tag)
         } else requestPermissionLauncher.launch(arrayOf(CAMERA))
     }
 
@@ -141,20 +115,25 @@ class FormFragment : Fragment() {
     private fun FragmentFormBinding.getCurrentLocation(result: Location) {
         val coordinate = CoordinateModel(result.latitude, result.longitude)
 
-        viewModel.getCurrentLocation(coordinate) { result ->
-            when (result) {
-                is Response.Success -> {
+        viewModel.getCurrentLocation(coordinate) { response ->
+            response.onLoading { loadingState(true) }
+                .onSuccess { data ->
+                    loadingState(false)
+
                     val inputAddress = insertAddress.text.toString().trim()
-                    val geoAddress = "$inputAddress\n\n${result.data}"
-                    val combineAddress = if (inputAddress.isEmpty()) result.data.toString() else geoAddress
+                    val geoAddress = "$inputAddress\n\n${data}"
+                    val combineAddress = if (inputAddress.isEmpty()) data.toString() else geoAddress
 
                     insertAddress.setText(combineAddress)
-                }
+                }.onFailure {
+                    loadingState(false)
 
-                is Response.Failure -> showToast(requireContext(), getString(R.string.failed_get_current_location))
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
+                    showToast(requireContext(), getString(R.string.failed_get_current_location))
+                }.onError { msg ->
+                    loadingState(false)
+
+                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
+                }
         }
     }
 
@@ -166,17 +145,15 @@ class FormFragment : Fragment() {
         val datePicker = materialDatePicker.build()
 
         datePicker.show(childFragmentManager, datePicker.toString())
-        datePicker.addOnPositiveButtonClickListener { timestampInMillis ->
-            timestamp = timestampInMillis
-            insertDate.setText(formatDate(timestampInMillis, "Asia/Jakarta"))
-        }
+        datePicker.addOnPositiveButtonClickListener { viewModel.saveTimestamp(it) }
     }
 
     private fun FragmentFormBinding.notNullChecker() {
+        hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext()))
+
         val voterId = insertNik.text.toString().trim()
         val voterName = insertName.text.toString().trim()
         val phoneNumber = insertPhone.text.toString().trim()
-        val creationTimestamp = timestamp.toString()
         val voterAddress = insertAddress.text.toString().trim()
         val isMaleSelected = genderRadio.checkedRadioButtonId == R.id.male
         val isGenderSelected = genderRadio.checkedRadioButtonId
@@ -185,52 +162,64 @@ class FormFragment : Fragment() {
             nik = voterId,
             nama = voterName,
             nohp = phoneNumber,
-            tanggal = creationTimestamp,
             alamat = voterAddress,
             jk = isMaleSelected
         )
 
         viewModel.nullChecker(votersData, isGenderSelected) { result ->
-            when (result) {
-                is Response.Success -> addNewDataVoters(result.data as VoterDataModel)
-                is Response.Failure -> {
-                    val emptyField = when (result.message) {
-                        EntryDataViewModel.NIK -> getString(R.string.nik)
-                        EntryDataViewModel.NAMA -> getString(R.string.name)
-                        EntryDataViewModel.NOHP -> getString(R.string.phone)
-                        EntryDataViewModel.TANGGAL -> getString(R.string.date)
-                        EntryDataViewModel.ALAMAT -> getString(R.string.address)
-                        EntryDataViewModel.GENDER -> getString(R.string.gender)
-                        EntryDataViewModel.GAMBAR -> getString(R.string.evidence_process)
-                        else -> ""
-                    }.lowercase()
+            result.onLoading { loadingState(true) }
+                .onSuccess { data ->
+                    loadingState(false)
 
-                    if (!result.message.isNullOrEmpty() && emptyField.isNotEmpty())
-                        showToast(requireContext(), getString(R.string.fill_your_x, emptyField))
+                    addNewDataVoters(data ?: VoterDataModel())
+                }.onFailure { msg ->
+                    loadingState(false)
+
+                    val emptyFieldResId = when (msg) {
+                        EntryDataViewModel.NIK -> R.string.nik
+                        EntryDataViewModel.NAMA -> R.string.name
+                        EntryDataViewModel.NOHP -> R.string.phone
+                        EntryDataViewModel.TANGGAL -> R.string.date
+                        EntryDataViewModel.ALAMAT -> R.string.address
+                        EntryDataViewModel.GENDER -> R.string.gender
+                        EntryDataViewModel.GAMBAR -> R.string.evidence_process
+                        else -> null
+                    }
+
+                    emptyFieldResId?.let { fieldResId ->
+                        val emptyField = getString(fieldResId).lowercase()
+                        showSnackbar(root, getString(R.string.fill_your_x, emptyField), getString(R.string.close))
+                    }
+                }.onError { msg ->
+                    loadingState(false)
+
+                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
-
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
         }
     }
 
     private fun addNewDataVoters(voter: VoterDataModel) {
-        val reducedImage = uriToFile(currentImageUri!!, requireContext()).reduceFileImage()
+        val currentImageUri = viewModel.currentImageUri.value
+        val reducedImage = uriToImageFile(currentImageUri!!, requireContext()).reduceFileImage()
         val img = reImaged(requireContext(), reducedImage)
         val updatedVoter = voter.copy(gambar = img.toString())
 
         viewModel.addNewVoter(updatedVoter) { result ->
-            when (result) {
-                is Response.Success -> {
+            result.onLoading { loadingState(true) }
+                .onSuccess { data ->
+                    loadingState(false)
+
                     showToast(requireContext(), getString(R.string.save_data_success))
                     requireActivity().finish()
-                }
+                }.onFailure {
+                    loadingState(false)
 
-                is Response.Failure -> showToast(requireContext(), getString(R.string.save_data_failed))
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
+                    showToast(requireContext(), getString(R.string.save_data_failed))
+                }.onError { msg ->
+                    loadingState(false)
+
+                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
+                }
         }
     }
 

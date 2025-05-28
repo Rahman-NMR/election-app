@@ -8,16 +8,13 @@
     <string name="election_information">Informasi Pemilihan</string>
     <string name="form_entry_data">Form Entri Data</string>
     <string name="show_data">Lihat Data</string>
-    <string name="logout">Keluar</string>
-    <string name="election_data">Data Pemilihan</string>
+    <string name="exit">Keluar</string>
 
     <!--    button-->
     <string name="submit_data">Tambah Data</string>
-    <string name="signin">Masuk</string>
-    <string name="signup">Daftar</string>
     <string name="btn_continue">Lanjutkan</string>
-    <string name="choose_from_gallery">Pilih dari galeri</string>
-    <string name="take_a_picture">Ambil gambar</string>
+    <string name="from_gallery">Galeri</string>
+    <string name="from_camera">Kamera</string>
 
     <!--    hint-->
     <string name="enter_nik">Masukan NIK</string>
@@ -29,9 +26,8 @@
     <!--    string format-->
     <string name="fill_your_x">Mohon lengkapi data %1$s</string>
     <string name="nik_x">NIK : %1$s</string>
-    <string name="name_x">Nama :</string>
-    <string name="address_x">Alamat :</string>
-    <string name="date_x">Tanggal Pendataan :</string>
+    <string name="io_data_success">%1$s berhasil dilakukan</string>
+    <string name="file_path">Lokasi file: %1$s</string>
 
     <!--    ui-->
     <string name="nik">NIK</string>
@@ -39,18 +35,30 @@
     <string name="phone">Nomor HP</string>
     <string name="gender">Jenis Kelamin</string>
     <string name="date">Tanggal</string>
+    <string name="registration_date">Tanggal Pendataan</string>
     <string name="address">Alamat</string>
     <string name="evidence_process">Bukti Pendataan</string>
     <string name="male">Laki-Laki</string>
     <string name="female">Perempuan</string>
-    <string name="password">Kata sandi</string>
-    <string name="confirm_password">Konfirmasi Kata Sandi</string>
     <string name="delete">Hapus</string>
     <string name="cancel">Batalkan</string>
+    <string name="close">Tutup</string>
+    <string name="import_data" translatable="false">Import data</string>
+    <string name="export_data" translatable="false">Export data</string>
+    <string name="election_data">Data Pemilihan</string>
+    <string name="data_detail">Detail Data</string>
+    <string name="choose_image">Pilih Gambar</string>
     <string name="header_check_nik">Periksa NIK</string>
+    <string name="find_voter">Cari NIK, Nama, atau Alamat</string>
     <string name="body_check_nik">NIK akan diperiksa apakah sudah terdaftar atau belum.</string>
-    <string name="delete_dialog_title">Hapus data pemilih?</string>
-    <string name="delete_dialog_message">Data pemilih akan dihapus dari daftar pemilih.</string>
+
+    <!--    dialog-->
+    <string name="delete_dialog_title">Hapus Data Pemilih?</string>
+    <string name="delete_dialog_message">Data pemilih dengan %1$s %2$s akan dihapus dari daftar pemilih.</string>
+    <string name="import_dialog_title">Import Data Pemilih?</string>
+    <string name="import_dialog_message">Data dari file JSON akan menambahkan atau memperbarui data berdasarkan keberadaan %1$s dari data di aplikasi.</string>
+    <string name="export_dialog_title">Eksport Data Pemilih?</string>
+    <string name="export_dialog_message">Semua data pemilih akan diekspor ke dalam format JSON. File gambar yang terkait dengan setiap data pemilih juga akan dipindahkan ke lokasi yang sama dengan file JSON tersebut.</string>
 
     <!--    response message-->
     <string name="permission_denied">Izin ditolak</string>
@@ -63,4 +71,9 @@
     <string name="nik_cant_null">NIK tidak boleh kosong</string>
     <string name="delete_success">Data berhasil dihapus</string>
     <string name="delete_failed">Gagal menghapus data</string>
+    <string name="convert_uri_fail">Terjadi kesalahan saat memasukkan file</string>
+    <string name="uri_is_null">Lokasi file tidak ditemukan</string>
+    <string name="same_data">Data sama persis dengan data yang ada</string>
+    <string name="empty_file">Terjadi kesalahan saat membaca file</string>
+    <string name="export_data_failed">Gagal melakukan ekspor data</string>
 </resources>

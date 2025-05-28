@@ -1,42 +1,53 @@
 package com.rahman.pemiluapp.view.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.domain.usecase.DataUsecase
-import com.rahman.pemiluapp.utils.Response
+import com.rahman.pemiluapp.domain.util.Response
 
-class ShowDataViewModel(private val repository: DataUsecase) : ViewModel() {
-    private val _votersData = MutableLiveData<List<VoterDataModel>>()
-    val votersData: MutableLiveData<List<VoterDataModel>> get() = _votersData
-
-    fun getAllVoters(onResponse: (Response) -> Unit) {
+class ShowDataViewModel(private val repository: DataUsecase) : BaseViewModel<List<VoterDataModel>>() {
+    fun getAllVoters() {
         try {
+            setLoading()
             val dataList = repository.getAllVotersData()
 
-            if (dataList.isNotEmpty()) {
-                _votersData.value = dataList
-                onResponse(Response.Success())
-            } else {
-                _votersData.value = emptyList()
-                onResponse(Response.Failure())
-            }
+            if (dataList.isNotEmpty()) setSuccess(dataList)
+            else setFailure()
         } catch (e: Exception) {
-            onResponse(Response.Error(e.localizedMessage))
+            setError(e.localizedMessage)
         }
     }
 
-    fun getDataVoter(nik: String?, onResponse: (Response) -> Unit) {
+    fun searchVoter(query: String?) {
+        try {
+            setLoading()
+            if (!query.isNullOrEmpty()) {
+                val dataList = repository.searchVoter(query)
+
+                if (dataList.isNotEmpty()) setSuccess(dataList)
+                else setFailure()
+            } else {
+                getAllVoters()
+            }
+        } catch (e: Exception) {
+            setError(e.localizedMessage)
+        }
+    }
+
+    fun getDataVoter(nik: String?, onResponse: (Response<VoterDataModel>) -> Unit) {
         repository.getDataVoter(nik, onResponse)
     }
 
-    fun deleteDataVoter(nik: String?, onResponse: (Response) -> Unit) {
-        repository.deleteDataVoter(nik) { response ->
-            if (response is Response.Success) {
-                _votersData.value = _votersData.value?.filter { it.nik != nik }
-            }
+    fun deleteDataVoter(nik: String?, onResponse: (Response<Nothing>) -> Unit) {
+        try {
+            setLoading()
 
-            onResponse(response)
+            repository.deleteDataVoter(nik) { response ->
+                onResponse(response)
+
+                if (response is Response.Success) getAllVoters()
+            }
+        } catch (e: Exception) {
+            setError(e.localizedMessage)
         }
     }
 }

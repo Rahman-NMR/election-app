@@ -15,7 +15,10 @@ import com.rahman.pemiluapp.R
 import com.rahman.pemiluapp.databinding.FragmentNikBinding
 import com.rahman.pemiluapp.utils.DisplayMessage.showToast
 import com.rahman.pemiluapp.utils.EditInputText.hideKeyboard
-import com.rahman.pemiluapp.utils.Response
+import com.rahman.pemiluapp.domain.util.onError
+import com.rahman.pemiluapp.domain.util.onFailure
+import com.rahman.pemiluapp.domain.util.onLoading
+import com.rahman.pemiluapp.domain.util.onSuccess
 import com.rahman.pemiluapp.view.viewmodel.EntryDataViewModel
 import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
 
@@ -50,21 +53,25 @@ class NikFragment : Fragment() {
         }
     }
 
+    private fun loadingState(isLoading: Boolean) {
+        binding.checkNikProgIndic.isVisible = isLoading
+    }
+
     private fun FragmentNikBinding.checkExistanceData() {
         nikInputText.clearFocus()
         hideKeyboard(requireContext(), nikInputText)
 
-        viewModel.isDataExist(nikInputText.text.toString()) { result ->
-            when (result) {
-                is Response.Success -> {
-                    nikValidator.helperText = getString(R.string.nik_registered)
-                    btnNikRegistredState(true)
-                }
+        viewModel.isDataExist(nikInputText.text.toString()) { response ->
+            response.onFailure { validateInput() }.onSuccess {
+                loadingState(false)
 
-                is Response.Failure -> validateInput()
-                is Response.Error -> if (!result.message.isNullOrEmpty()) showToast(requireContext(), result.message)
-                is Response.Loading -> {}
-            }
+                nikValidator.helperText = getString(R.string.nik_registered)
+                btnNikRegistredState(true)
+            }.onError { msg ->
+                loadingState(false)
+
+                if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
+            }.onLoading {loadingState(true) }
         }
     }
 
@@ -75,6 +82,8 @@ class NikFragment : Fragment() {
     }
 
     private fun FragmentNikBinding.validateInput() {
+        loadingState(false)
+
         when {
             nikInputText.text.isNullOrEmpty() -> nikValidator.error = getString(R.string.nik_cant_null)
             nikInputText.text.toString().length < 16 -> nikValidator.error = getString(R.string.nik_length_error)
