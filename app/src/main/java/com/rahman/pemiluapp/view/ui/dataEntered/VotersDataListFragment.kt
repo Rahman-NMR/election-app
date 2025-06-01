@@ -11,10 +11,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rahman.pemiluapp.R
 import com.rahman.pemiluapp.databinding.FragmentVotersDataListBinding
-import com.rahman.pemiluapp.domain.util.onError
 import com.rahman.pemiluapp.domain.util.onFailure
 import com.rahman.pemiluapp.domain.util.onSuccess
-import com.rahman.pemiluapp.utils.DisplayMessage.showToast
 import com.rahman.pemiluapp.utils.EditInputText.hideKeyboard
 import com.rahman.pemiluapp.utils.SpacingDecoration
 import com.rahman.pemiluapp.view.adapter.VoterListAdapter
@@ -44,7 +42,6 @@ class VotersDataListFragment : Fragment() {
         viewModel.responseLiveData.observe(viewLifecycleOwner) { response ->
             response.onSuccess { data -> votersListAdapter.submitList(data) }
                 .onFailure { votersListAdapter.submitList(emptyList()) }
-                .onError { msg -> if (!msg.isNullOrEmpty()) showToast(requireContext(), msg) }
         }
     }
 

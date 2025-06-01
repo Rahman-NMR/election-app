@@ -18,7 +18,7 @@ object Injection {
     private fun sqlDatabase(context: Context) = DatabaseHelper(context)
 
     fun entryDataRepository(context: Context): EntryDataRepository {
-        return EntryDataRepositoryImpl(sqlDatabase(context), geoCoder(context))
+        return EntryDataRepositoryImpl(sqlDatabase(context), geoCoder(context), context)
     }
 
     fun showDataRepository(context: Context): ShowDataRepository {

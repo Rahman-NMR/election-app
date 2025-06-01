@@ -1,5 +1,6 @@
 package com.rahman.pemiluapp.domain.interactor
 
+import android.net.Uri
 import com.rahman.pemiluapp.data.model.CoordinateModel
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.domain.repositories.EntryDataRepository
@@ -16,32 +17,36 @@ class DataInteractor(
 ) : DataUsecase {
 
     // enter data
-    override fun getCurrentLocation(coordinate: CoordinateModel, onResponse: (Response<String>) -> Unit) {
+    override suspend fun getCurrentLocation(coordinate: CoordinateModel, onResponse: (Response<String>) -> Unit) {
         return entryDataRepository.getCurrentLocation(coordinate, onResponse)
     }
 
-    override fun validateDataExists(nik: String, onResponse: (Response<String>) -> Unit) {
+    override suspend fun validateDataExists(nik: String, onResponse: (Response<String>) -> Unit) {
         return entryDataRepository.validateDataExists(nik, onResponse)
     }
 
-    override fun addVoterData(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) {
+    override suspend fun imageProcessing(uri: Uri?): Uri? {
+        return entryDataRepository.imageProcessing(uri)
+    }
+
+    override suspend fun addVoterData(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) {
         return entryDataRepository.addVoterData(voterData, onResponse)
     }
 
     // show data
-    override fun getAllVotersData(): List<VoterDataModel> {
+    override suspend fun getAllVotersData(): List<VoterDataModel> {
         return showDataRepository.getAllVoters()
     }
 
-    override fun searchVoter(query: String): List<VoterDataModel> {
+    override suspend fun searchVoter(query: String): List<VoterDataModel> {
         return showDataRepository.searchVoter(query)
     }
 
-    override fun getDataVoter(nik: String?, onResponse: (Response<VoterDataModel>) -> Unit) {
+    override suspend fun getDataVoter(nik: String?, onResponse: (Response<VoterDataModel>) -> Unit) {
         return showDataRepository.getDataVoter(nik, onResponse)
     }
 
-    override fun deleteDataVoter(nik: String?, onResponse: (Response<Nothing>) -> Unit) {
+    override suspend fun deleteDataVoter(nik: String?, onResponse: (Response<Nothing>) -> Unit) {
         return showDataRepository.deleteDataVoter(nik, onResponse)
     }
 

@@ -1,17 +1,23 @@
 package com.rahman.pemiluapp.data.repository
 
+import android.content.Context
 import android.location.Geocoder
+import android.net.Uri
 import com.rahman.pemiluapp.data.model.CoordinateModel
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.data.sql.DatabaseHelper
 import com.rahman.pemiluapp.domain.repositories.EntryDataRepository
 import com.rahman.pemiluapp.domain.util.Response
+import com.rahman.pemiluapp.utils.FileDirectoryOperation
+import com.rahman.pemiluapp.utils.ImageOperation.reduceFileImage
+import com.rahman.pemiluapp.utils.UriConverter
 
 class EntryDataRepositoryImpl(
     private val dbHelper: DatabaseHelper,
-    private val geoCoder: Geocoder
+    private val geoCoder: Geocoder,
+    private val context: Context
 ) : EntryDataRepository {
-    override fun getCurrentLocation(coordinate: CoordinateModel, onLocationResult: (Response<String>) -> Unit) {
+    override suspend fun getCurrentLocation(coordinate: CoordinateModel, onLocationResult: (Response<String>) -> Unit) {
         try {
             onLocationResult(Response.Loading)
 
@@ -26,7 +32,7 @@ class EntryDataRepositoryImpl(
         }
     }
 
-    override fun validateDataExists(nik: String, onResponse: (Response<String>) -> Unit) {
+    override suspend fun validateDataExists(nik: String, onResponse: (Response<String>) -> Unit) {
         try {
             onResponse(Response.Loading)
 
@@ -41,7 +47,20 @@ class EntryDataRepositoryImpl(
         }
     }
 
-    override fun addVoterData(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) {
+    override suspend fun imageProcessing(uri: Uri?): Uri? {
+        uri ?: return null
+
+        val tempFile = FileDirectoryOperation.generateImageTempFile(context) ?: return null
+        val imageFile = UriConverter.writeUriToFile(uri, context, tempFile, true) ?: return null
+        val reducedImageFileInCache = imageFile.reduceFileImage()
+        val finalImageFile = FileDirectoryOperation.moveFileToAppFileDir(context, reducedImageFileInCache)
+        return finalImageFile?.let { Uri.fromFile(it) } ?: run {
+            reducedImageFileInCache.delete()
+            null
+        }
+    }
+
+    override suspend fun addVoterData(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) {
         try {
             onResponse(Response.Loading)
 

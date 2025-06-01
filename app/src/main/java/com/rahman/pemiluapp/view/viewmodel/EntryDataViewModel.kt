@@ -4,10 +4,13 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rahman.pemiluapp.data.model.CoordinateModel
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.domain.usecase.DataUsecase
 import com.rahman.pemiluapp.domain.util.Response
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class EntryDataViewModel(private val usecase: DataUsecase) : ViewModel() {
     private val _imgUri = MutableLiveData<Uri?>()
@@ -20,17 +23,17 @@ class EntryDataViewModel(private val usecase: DataUsecase) : ViewModel() {
         _imgUri.value = uri
     }
 
-    fun deleteImageUri() {
-        _imgUri.value = null
-    }
-
     fun saveTimestamp(timestamp: Long) {
         _timestamp.value = timestamp
     }
 
-    fun getCurrentLocation(coordinate: CoordinateModel, onResponse: (Response<String>) -> Unit) {
+    fun getCurrentLocation(coordinate: CoordinateModel, onResponse: (Response<String>) -> Unit) = viewModelScope.launch {
         usecase.getCurrentLocation(coordinate, onResponse)
     }
+
+    suspend fun processImageUri(): Uri? = viewModelScope.async {
+        usecase.imageProcessing(_imgUri.value)
+    }.await()
 
     fun nullChecker(votersData: VoterDataModel, isGenderSelected: Int, onResponse: (Response<VoterDataModel>) -> Unit) {
         try {
@@ -51,12 +54,12 @@ class EntryDataViewModel(private val usecase: DataUsecase) : ViewModel() {
         }
     }
 
-    fun isDataExist(nik: String, onResponse: (Response<String>) -> Unit) {
-        usecase.validateDataExists(nik, onResponse)
+    fun addNewVoter(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) = viewModelScope.launch {
+        usecase.addVoterData(voterData, onResponse)
     }
 
-    fun addNewVoter(voterData: VoterDataModel, onResponse: (Response<VoterDataModel>) -> Unit) {
-        usecase.addVoterData(voterData, onResponse)
+    fun isDataExist(nik: String, onResponse: (Response<String>) -> Unit) = viewModelScope.launch {
+        usecase.validateDataExists(nik, onResponse)
     }
 
     companion object {

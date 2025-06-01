@@ -1,59 +1,58 @@
 package com.rahman.pemiluapp.utils
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.net.Uri
-import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
-import com.rahman.pemiluapp.BuildConfig
-import com.rahman.pemiluapp.utils.DateFormatter.timeStamp
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
 object ImageOperation {
-    private const val MAXIMAL_SIZE = 1000000
-    const val FILENAME_FORMAT = "yyyyMMdd_HHmmss-SSS"
+    private const val MAX_SIZE = 500000 //500 KB
 
     fun File.reduceFileImage(): File {
-        val file = this
-        val bitmap = BitmapFactory.decodeFile(file.path).getRotatedBitmap(file)
+        val targetFile = this
+        val bitmap = BitmapFactory.decodeFile(targetFile.path)?.getRotatedBitmap(targetFile)
+            ?: return targetFile
+
         var compressQuality = 100
         var streamLength: Int
 
-        do {
-            val bmpStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream)
+        try {
+            do {
+                ByteArrayOutputStream().use { bmpStream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream)
 
-            val bmpPicByteArray = bmpStream.toByteArray()
-            streamLength = bmpPicByteArray.size
-            compressQuality -= 5
-        } while (streamLength > MAXIMAL_SIZE)
+                    val bmpPicByteArray = bmpStream.toByteArray()
+                    streamLength = bmpPicByteArray.size
+                    compressQuality -= 5
+                }
+            } while (streamLength > MAX_SIZE && compressQuality > 0)
 
-        bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(file))
-        return file
-    }
-
-    fun getImageDir(context: Context): Uri {
-        val tempImageDir = File(context.filesDir, "$timeStamp.jpg")
-        return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, tempImageDir)
-    }
-
-    fun reImaged(context: Context, reducedImage: File): Uri? {
-        return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, reducedImage)
+            val finalCompressQuality = if (compressQuality < 0) 0 else compressQuality
+            FileOutputStream(targetFile).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, finalCompressQuality, fos)
+            }
+        } catch (_: Exception) {
+            return targetFile
+        }
+        return targetFile
     }
 
     private fun Bitmap.getRotatedBitmap(file: File): Bitmap {
-        val orientation = ExifInterface(file).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-        return when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(this, 90F)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(this, 180F)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(this, 270F)
-            ExifInterface.ORIENTATION_NORMAL -> this
-            else -> this
+        if (file.exists()) {
+            val orientation = ExifInterface(file).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+            return when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(this, 90F)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(this, 180F)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(this, 270F)
+                ExifInterface.ORIENTATION_NORMAL -> this
+                else -> this
+            }
         }
+
+        return this
     }
 
     private fun rotateImage(source: Bitmap, angle: Float): Bitmap {

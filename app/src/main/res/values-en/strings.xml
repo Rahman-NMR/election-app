@@ -69,8 +69,9 @@
     <string name="delete_success">Data deleted successfully</string>
     <string name="delete_failed">Failed to delete data</string>
     <string name="convert_uri_fail">Error occurred while inserting file</string>
-    <string name="uri_is_null">File location not found</string>
+    <string name="file_uri_null">File location not found</string>
     <string name="same_data">Data totally same with existing data</string>
     <string name="empty_file">Error occurred while reading file</string>
     <string name="export_data_failed">Failed to export data</string>
+    <string name="image_processing_failed">Image processing failed</string>
 </resources>

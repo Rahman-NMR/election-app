@@ -72,8 +72,9 @@
     <string name="delete_success">Data berhasil dihapus</string>
     <string name="delete_failed">Gagal menghapus data</string>
     <string name="convert_uri_fail">Terjadi kesalahan saat memasukkan file</string>
-    <string name="uri_is_null">Lokasi file tidak ditemukan</string>
+    <string name="file_uri_null">Lokasi file tidak ditemukan</string>
     <string name="same_data">Data sama persis dengan data yang ada</string>
     <string name="empty_file">Terjadi kesalahan saat membaca file</string>
     <string name="export_data_failed">Gagal melakukan ekspor data</string>
+    <string name="image_processing_failed">Gagal memproses gambar</string>
 </resources>

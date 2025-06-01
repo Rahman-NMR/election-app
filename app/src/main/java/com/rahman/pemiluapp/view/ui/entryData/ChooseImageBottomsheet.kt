@@ -1,6 +1,5 @@
 package com.rahman.pemiluapp.view.ui.entryData
 
-import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,11 +9,13 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.rahman.pemiluapp.R
 import com.rahman.pemiluapp.databinding.BottomsheetChooseImageBinding
-import com.rahman.pemiluapp.utils.ImageOperation.getImageDir
+import com.rahman.pemiluapp.utils.DisplayMessage.showToast
+import com.rahman.pemiluapp.utils.FileDirectoryOperation.generateImageTempFile
+import com.rahman.pemiluapp.utils.FileDirectoryOperation.getUriFromFileTemp
 import com.rahman.pemiluapp.view.viewmodel.EntryDataViewModel
 import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
-import kotlin.getValue
 
 class ChooseImageBottomsheet : BottomSheetDialogFragment() {
     private var _binding: BottomsheetChooseImageBinding? = null
@@ -30,8 +31,8 @@ class ChooseImageBottomsheet : BottomSheetDialogFragment() {
     }
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-        if (isSuccess) viewModel.saveImageUri(currentImageUri)
-        else viewModel.saveImageUri(null)
+        val uri = if (isSuccess) currentImageUri else null
+        viewModel.saveImageUri(uri)
 
         dismiss()
     }
@@ -45,22 +46,28 @@ class ChooseImageBottomsheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnCloseBtmsht.setOnClickListener { dismiss() }
-        binding.btnDeleteImg.setOnClickListener {
-            dismiss()
-            viewModel.deleteImageUri()
-        }
-        binding.btnOpenCamera.setOnClickListener {
-            currentImageUri = getImageDir(requireContext())
-            cameraLauncher.launch(currentImageUri)
-        }
+        binding.btnDeleteImg.setOnClickListener { resetImageSelection() }
+        binding.btnOpenCamera.setOnClickListener { captureImageWithCamera() }
         binding.btnOpenGallery.setOnClickListener {
             galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        dialog.cancel()
+    private fun captureImageWithCamera() {
+        val imageUri = generateImageTempFile(requireContext())?.let { fileDirectory ->
+            getUriFromFileTemp(requireContext(), fileDirectory)
+        } ?: (return).also {
+            showToast(requireContext(), getString(R.string.image_processing_failed))
+            resetImageSelection()
+        }
+
+        currentImageUri = imageUri
+        cameraLauncher.launch(currentImageUri)
+    }
+
+    private fun resetImageSelection() {
+        viewModel.saveImageUri(null)
+        dismiss()
     }
 
     override fun onDestroyView() {

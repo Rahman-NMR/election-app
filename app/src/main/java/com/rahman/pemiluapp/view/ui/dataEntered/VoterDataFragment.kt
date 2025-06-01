@@ -45,18 +45,12 @@ class VoterDataFragment : Fragment() {
     private fun loadVoterData(safeArgsData: String) {
         viewModel.getDataVoter(safeArgsData) { response ->
             response.onLoading { loadingIndicator(true) }
+                .onFailure { loadingIndicator(false, message = it ?: getString(R.string.data_not_found)) }
+                .onError { loadingIndicator(false, message = it) }
                 .onSuccess { data ->
                     loadingIndicator(false)
 
                     binding.voterUI(data)
-                }.onFailure {
-                    loadingIndicator(false)
-
-                    showToast(requireContext(), getString(R.string.data_not_found))
-                }.onError { msg ->
-                    loadingIndicator(false)
-
-                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
         }
     }
@@ -97,25 +91,19 @@ class VoterDataFragment : Fragment() {
     private fun processVoterDeletion(nik: String?) {
         viewModel.deleteDataVoter(nik) { response ->
             response.onLoading { loadingIndicator(true) }
+                .onFailure { loadingIndicator(false, message = it ?: getString(R.string.delete_failed)) }
+                .onError { loadingIndicator(false, it) }
                 .onSuccess {
-                    loadingIndicator(false)
+                    loadingIndicator(false, message = getString(R.string.delete_success))
 
-                    showToast(requireContext(), getString(R.string.delete_success))
                     findNavController().popBackStack()
-                }.onFailure {
-                    loadingIndicator(false)
-
-                    showToast(requireContext(), getString(R.string.delete_failed))
-                }.onError { msg ->
-                    loadingIndicator(false)
-
-                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
         }
     }
 
-    private fun loadingIndicator(isLoading: Boolean) {
+    private fun loadingIndicator(isLoading: Boolean, message: String? = null) {
         binding.dataDetailProgIndic.isVisible = isLoading
+        if (!message.isNullOrEmpty()) showToast(requireContext(), message)
     }
 
     override fun onDestroyView() {

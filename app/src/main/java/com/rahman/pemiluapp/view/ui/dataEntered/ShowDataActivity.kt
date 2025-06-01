@@ -16,7 +16,8 @@ import com.rahman.pemiluapp.domain.util.onError
 import com.rahman.pemiluapp.domain.util.onFailure
 import com.rahman.pemiluapp.domain.util.onLoading
 import com.rahman.pemiluapp.domain.util.onSuccess
-import com.rahman.pemiluapp.utils.DateFormatter.timeStamp
+import com.rahman.pemiluapp.utils.DateFormatter.currentTime
+import com.rahman.pemiluapp.utils.DateFormatter.timeStampFilename
 import com.rahman.pemiluapp.utils.DialogPopup
 import com.rahman.pemiluapp.utils.DisplayMessage.showToast
 import com.rahman.pemiluapp.utils.UriConverter
@@ -55,8 +56,8 @@ class ShowDataActivity : AppCompatActivity() {
     }
 
     private fun menuItemClick(menu: MenuItem): Boolean = when (menu.itemId) {
-        R.id.menu_import -> ioConfirmationDialog(true)
-        R.id.menu_export -> ioConfirmationDialog(false)
+        R.id.menu_import -> ioConfirmationDialog(isImport = true)
+        R.id.menu_export -> ioConfirmationDialog(isImport = false)
         else -> false
     }
 
@@ -81,70 +82,60 @@ class ShowDataActivity : AppCompatActivity() {
 
     private fun uriToFile(uri: Uri?) {
         uri?.let {
-            UriConverter.uriToCachedFile(it, this)?.let { file ->
+            val destinationFile = File(cacheDir, "imported_data_$currentTime.json")
+            UriConverter.writeUriToFile(it, this, destinationFile)?.let { file ->
                 handleImportAction(file)
-            } ?: run {
-                showToast(this, getString(R.string.convert_uri_fail))
-            }
-        } ?: showToast(this, getString(R.string.uri_is_null))
+            } ?: run { showToast(this, getString(R.string.convert_uri_fail)) }
+        } ?: showToast(this, getString(R.string.file_uri_null))
     }
 
     private fun handleImportAction(file: File) {
         ioViewModel.importFromJson(file) { response ->
-            response.onSuccess { success ->
-                loadingState(false, true)
+            response.onLoading { loadingState(true, isIOLoading = true) }
+                .onFailure { loadingState(false, message = it ?: getString(R.string.empty_file)) }
+                .onError { loadingState(false, message = it) }
+                .onSuccess { success ->
+                    val resultMessage =
+                        if (success == true) getString(R.string.io_data_success, getString(R.string.import_data))
+                        else getString(R.string.same_data)
 
-                if (success == true) {
-                    showToast(this, getString(R.string.io_data_success, getString(R.string.import_data)))
-
+                    loadingState(false, fullyGone = true, isIOLoading = true, message = resultMessage)
                     onBackNavigation(false)
-                } else {
-                    showToast(this, getString(R.string.same_data))
                 }
-            }.onFailure {
-                loadingState(false, true)
-
-                showToast(this, getString(R.string.empty_file))
-            }.onError { msg ->
-                loadingState(false, true)
-
-                if (!msg.isNullOrEmpty()) showToast(this, msg)
-            }.onLoading { loadingState(true) }
         }
     }
 
     private fun handleExportAction() {
-        val str = getString(R.string.election_data)
-        val strApp = getString(R.string.app_name)
+        val baseDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        val exportFolder = File(baseDir, getString(R.string.app_name))
+        val jsonOutputFile = File(exportFolder, "${getString(R.string.election_data)} - $timeStampFilename.json")
+        val imageDir = File(exportFolder, JsonUtil.IMAGE_DIR)
 
-        val baseDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val exportFolder = File(baseDir, "$strApp - Export").apply { mkdirs() }
-        val outputFile = File(exportFolder, "$str - $timeStamp.json")
-
-        ioViewModel.exportToJson(outputFile) { response ->
-            response.onLoading { loadingState(true) }
-                .onFailure { msg -> handleExportError(msg, outputFile) }
-                .onError { msg -> handleExportError(msg, outputFile) }
+        ioViewModel.exportToJson(jsonOutputFile) { response ->
+            response.onLoading { loadingState(true, isIOLoading = true) }
+                .onFailure { handleExportError(it, jsonOutputFile, imageDir, exportFolder) }
+                .onError { handleExportError(it, jsonOutputFile, imageDir, exportFolder) }
                 .onSuccess { success ->
-                    loadingState(false, true)
+                    loadingState(false, fullyGone = true, isIOLoading = true)
+                    onBackNavigation(false)
 
                     if (success == true) {
                         showToast(this, getString(R.string.io_data_success, getString(R.string.export_data)))
                         showToast(this, getString(R.string.file_path, baseDir.path))
-                    } else showToast(this, getString(R.string.export_data_failed))
+                    } else handleExportError(null, jsonOutputFile, imageDir, exportFolder)
                 }
         }
     }
 
-    private fun handleExportError(msg: String?, outputFile: File) {
-        loadingState(false, true)
+    private fun handleExportError(msg: String?, jsonFile: File, imageDir: File, mainExportDirectory: File) {
+        loadingState(false, isIOLoading = true, message = msg ?: getString(R.string.export_data_failed))
 
-        showToast(this, msg ?: getString(R.string.export_data_failed))
-        if (outputFile.exists()) outputFile.delete()
+        if (jsonFile.exists()) jsonFile.delete()
+        if (imageDir.exists()) imageDir.deleteRecursively()
 
-        val imageDir = File(outputFile.parentFile, JsonUtil.IMAGE_DIR)
-        if (imageDir.exists()) {
-            imageDir.deleteRecursively()
+        val filesInMainDir = mainExportDirectory.listFiles()
+        if (mainExportDirectory.exists() && (filesInMainDir == null || filesInMainDir.isEmpty())) {
+            mainExportDirectory.delete()
         }
     }
 
@@ -152,19 +143,16 @@ class ShowDataActivity : AppCompatActivity() {
         viewModel.getAllVoters()
         viewModel.responseLiveData.observe(this) { response ->
             response.onLoading { loadingState(true) }
-                .onSuccess { loadingState(false, true) }
-                .onFailure { loadingState(false, true) }
-                .onError { msg ->
-                    loadingState(false, true)
-
-                    if (!msg.isNullOrEmpty()) showToast(this, msg)
-                }
+                .onSuccess { loadingState(false, fullyGone = true) }
+                .onFailure { loadingState(false, message = it) }
+                .onError { loadingState(false, message = it) }
         }
     }
 
-    private fun loadingState(isVisible: Boolean, fullyGone: Boolean = false) {
+    private fun loadingState(isVisible: Boolean, fullyGone: Boolean = false, isIOLoading: Boolean = false, message: String? = null) {
+        if (!message.isNullOrEmpty()) showToast(this, message)
         binding.loadingIndicator.isVisible = if (fullyGone) false else isVisible
-        binding.rvKosong.isVisible = if (fullyGone) false else !isVisible
+        if (!isIOLoading) binding.rvKosong.isVisible = if (fullyGone) false else !isVisible
     }
 
     private fun onBackNavigation(isNotFromImport: Boolean = true) {

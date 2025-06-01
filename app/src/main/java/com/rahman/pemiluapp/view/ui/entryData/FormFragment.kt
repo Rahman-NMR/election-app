@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
@@ -31,13 +32,11 @@ import com.rahman.pemiluapp.domain.util.onSuccess
 import com.rahman.pemiluapp.utils.DateFormatter.formatDate
 import com.rahman.pemiluapp.utils.DisplayMessage.showSnackbar
 import com.rahman.pemiluapp.utils.DisplayMessage.showToast
-import com.rahman.pemiluapp.utils.EditInputText.hideKeyboard
-import com.rahman.pemiluapp.utils.ImageOperation.reImaged
-import com.rahman.pemiluapp.utils.ImageOperation.reduceFileImage
+import com.rahman.pemiluapp.utils.EditInputText
 import com.rahman.pemiluapp.utils.PermissionChecker.checkPermission
-import com.rahman.pemiluapp.utils.UriConverter.uriToImageFile
 import com.rahman.pemiluapp.view.viewmodel.EntryDataViewModel
 import com.rahman.pemiluapp.view.viewmodel.ViewModelFactory
+import kotlinx.coroutines.launch
 
 class FormFragment : Fragment() {
     private var _binding: FragmentFormBinding? = null
@@ -86,16 +85,24 @@ class FormFragment : Fragment() {
     }
 
     private fun FragmentFormBinding.actionUI() {
-        formContainer.setOnClickListener { hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext())) }
-        btnSubmit.setOnClickListener { notNullChecker() }
-
-        layoutDate.setEndIconOnClickListener { selectDate() }
-        layoutAddress.setEndIconOnClickListener { permissionLocation() }
-        insertEvidencePhoto.setOnClickListener { showBottomsheet() }
-    }
-
-    private fun loadingState(isLoading: Boolean) {
-        binding.inputDataProgIndic.isVisible = isLoading
+        formContainer.setOnClickListener { hideKeyboard() }
+        btnSubmit.setOnClickListener {
+            loadingState(true)
+            hideKeyboard()
+            notNullChecker()
+        }
+        layoutDate.setEndIconOnClickListener {
+            hideKeyboard()
+            selectDate()
+        }
+        layoutAddress.setEndIconOnClickListener {
+            hideKeyboard()
+            permissionLocation()
+        }
+        insertEvidencePhoto.setOnClickListener {
+            hideKeyboard()
+            showBottomsheet()
+        }
     }
 
     private fun showBottomsheet() {
@@ -107,8 +114,11 @@ class FormFragment : Fragment() {
 
     private fun permissionLocation() {
         if (checkPermission(requireContext(), ACCESS_FINE_LOCATION) && checkPermission(requireContext(), ACCESS_COARSE_LOCATION)) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { result -> binding.getCurrentLocation(result) }
-                .addOnFailureListener { showToast(requireContext(), getString(R.string.failed_get_current_location)) }
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { result ->
+                    loadingState(true)
+                    binding.getCurrentLocation(result)
+                }.addOnFailureListener { showToast(requireContext(), getString(R.string.failed_get_current_location)) }
         } else requestPermissionLauncher.launch(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
     }
 
@@ -117,6 +127,8 @@ class FormFragment : Fragment() {
 
         viewModel.getCurrentLocation(coordinate) { response ->
             response.onLoading { loadingState(true) }
+                .onFailure { loadingState(false, message = it ?: getString(R.string.failed_get_current_location)) }
+                .onError { loadingState(false, message = it) }
                 .onSuccess { data ->
                     loadingState(false)
 
@@ -125,14 +137,6 @@ class FormFragment : Fragment() {
                     val combineAddress = if (inputAddress.isEmpty()) data.toString() else geoAddress
 
                     insertAddress.setText(combineAddress)
-                }.onFailure {
-                    loadingState(false)
-
-                    showToast(requireContext(), getString(R.string.failed_get_current_location))
-                }.onError { msg ->
-                    loadingState(false)
-
-                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
         }
     }
@@ -149,8 +153,6 @@ class FormFragment : Fragment() {
     }
 
     private fun FragmentFormBinding.notNullChecker() {
-        hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext()))
-
         val voterId = insertNik.text.toString().trim()
         val voterName = insertName.text.toString().trim()
         val phoneNumber = insertPhone.text.toString().trim()
@@ -168,10 +170,12 @@ class FormFragment : Fragment() {
 
         viewModel.nullChecker(votersData, isGenderSelected) { result ->
             result.onLoading { loadingState(true) }
-                .onSuccess { data ->
-                    loadingState(false)
-
-                    addNewDataVoters(data ?: VoterDataModel())
+                .onError { loadingState(false, message = it) }
+                .onSuccess { voterDataModel ->
+                    voterDataModel?.let { addNewDataVoters(it) } ?: run {
+                        loadingState(false)
+                        showToast(requireContext(), getString(R.string.fill_your_x, ""))
+                    }
                 }.onFailure { msg ->
                     loadingState(false)
 
@@ -190,37 +194,37 @@ class FormFragment : Fragment() {
                         val emptyField = getString(fieldResId).lowercase()
                         showSnackbar(root, getString(R.string.fill_your_x, emptyField), getString(R.string.close))
                     }
-                }.onError { msg ->
-                    loadingState(false)
-
-                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
         }
     }
 
-    private fun addNewDataVoters(voter: VoterDataModel) {
-        val currentImageUri = viewModel.currentImageUri.value
-        val reducedImage = uriToImageFile(currentImageUri!!, requireContext()).reduceFileImage()
-        val img = reImaged(requireContext(), reducedImage)
-        val updatedVoter = voter.copy(gambar = img.toString())
+    private fun addNewDataVoters(voter: VoterDataModel) = lifecycleScope.launch {
+        val imageUri = viewModel.processImageUri()
+        if (imageUri == null) {
+            loadingState(false, message = getString(R.string.image_processing_failed))
+            return@launch
+        }
 
+        val updatedVoter = voter.copy(gambar = imageUri.toString())
         viewModel.addNewVoter(updatedVoter) { result ->
             result.onLoading { loadingState(true) }
-                .onSuccess { data ->
-                    loadingState(false)
+                .onFailure { loadingState(false, message = it ?: getString(R.string.save_data_failed)) }
+                .onError { loadingState(false, message = it) }
+                .onSuccess {
+                    loadingState(false, message = getString(R.string.save_data_success))
 
-                    showToast(requireContext(), getString(R.string.save_data_success))
                     requireActivity().finish()
-                }.onFailure {
-                    loadingState(false)
-
-                    showToast(requireContext(), getString(R.string.save_data_failed))
-                }.onError { msg ->
-                    loadingState(false)
-
-                    if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
                 }
         }
+    }
+
+    private fun loadingState(isLoading: Boolean, message: String? = null) {
+        binding.inputDataProgIndic.isVisible = isLoading
+        if (!message.isNullOrEmpty()) showToast(requireContext(), message)
+    }
+
+    private fun hideKeyboard() {
+        EditInputText.hideKeyboard(requireContext(), requireActivity().currentFocus ?: View(requireContext()))
     }
 
     override fun onDestroyView() {

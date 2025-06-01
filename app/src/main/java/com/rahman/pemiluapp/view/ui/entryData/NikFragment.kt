@@ -53,25 +53,20 @@ class NikFragment : Fragment() {
         }
     }
 
-    private fun loadingState(isLoading: Boolean) {
-        binding.checkNikProgIndic.isVisible = isLoading
-    }
-
     private fun FragmentNikBinding.checkExistanceData() {
         nikInputText.clearFocus()
         hideKeyboard(requireContext(), nikInputText)
 
         viewModel.isDataExist(nikInputText.text.toString()) { response ->
-            response.onFailure { validateInput() }.onSuccess {
-                loadingState(false)
+            response.onLoading { loadingState(true) }
+                .onFailure { validateInput() }
+                .onError { loadingState(false, message = it) }
+                .onSuccess {
+                    loadingState(false)
 
-                nikValidator.helperText = getString(R.string.nik_registered)
-                btnNikRegistredState(true)
-            }.onError { msg ->
-                loadingState(false)
-
-                if (!msg.isNullOrEmpty()) showToast(requireContext(), msg)
-            }.onLoading {loadingState(true) }
+                    nikValidator.helperText = getString(R.string.nik_registered)
+                    btnNikRegistredState(true)
+                }
         }
     }
 
@@ -90,6 +85,11 @@ class NikFragment : Fragment() {
             !nikInputText.text.toString().isDigitsOnly() -> nikValidator.error = getString(R.string.nik_digit_error)
             else -> navigateToFormFragment()
         }
+    }
+
+    private fun loadingState(isLoading: Boolean, message: String? = null) {
+        binding.checkNikProgIndic.isVisible = isLoading
+        if (!message.isNullOrEmpty()) showToast(requireContext(), message)
     }
 
     private fun FragmentNikBinding.navigateToVoterDataFragment() {

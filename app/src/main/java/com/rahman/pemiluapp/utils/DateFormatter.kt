@@ -1,6 +1,5 @@
 package com.rahman.pemiluapp.utils
 
-import com.rahman.pemiluapp.utils.ImageOperation.FILENAME_FORMAT
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -8,8 +7,10 @@ import java.util.TimeZone
 
 object DateFormatter {
     const val DATE_TIME_FORMAT: String = "Asia/Jakarta"
+    const val FILENAME_FORMAT = "yyyyMMdd_HHmmss"
+
     val currentTime: Long get() = System.currentTimeMillis() // get() for refresh current time when call
-    val timeStamp: String get() = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(Date(currentTime))
+    val timeStampFilename: String get() = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(Date(currentTime))
 
     fun formatDate(timestampDate: Long): String {
         val currentDate = Date(timestampDate)

@@ -6,8 +6,8 @@ import com.rahman.pemiluapp.data.sql.DatabaseHelper
 import com.rahman.pemiluapp.data.util.JsonUtil
 import com.rahman.pemiluapp.domain.repositories.FileExportRepository
 import com.rahman.pemiluapp.domain.util.Response
+import com.rahman.pemiluapp.utils.UriConverter.writeUriContentToFile
 import java.io.File
-import java.io.FileOutputStream
 
 class FileExportRepositoryImpl(
     private val sqlDatabase: DatabaseHelper,
@@ -21,21 +21,21 @@ class FileExportRepositoryImpl(
             val imageDir = File(file.parentFile, JsonUtil.IMAGE_DIR).apply { mkdirs() }
 
             val votersWithCopiedImages = data.map { voter ->
-                val uri = voter.gambar
-                if (uri != null) {
-                    val filename = "image_${voter.nik}.jpg"
+                val imageUri = voter.gambar
+                if (imageUri != null) {
+                    val nama = voter.nama.takeIf { !it.isNullOrEmpty() } ?: "namelessOwner"
+                    val filename = "IMG_${nama}_${voter.nik}.jpg"
                     val targetFile = File(imageDir, filename)
 
                     try {
-                        val sourceUri = uri.toUri()
-                        context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                            FileOutputStream(targetFile).use { output ->
-                                input.copyTo(output)
-                            }
+                        val sourceUri = imageUri.toUri()
+                        if (writeUriContentToFile(context, sourceUri, targetFile)) {
+                            voter.copy(gambar = "${JsonUtil.IMAGE_DIR}/$filename")
+                        } else {
+                            voter.copy(gambar = null)
                         }
-                        voter//todo: maybe {.copy(gambar = "${JsonUtil.IMAGE_DIR}/$filename")}
                     } catch (_: Exception) {
-                        voter//.copy(gambar = null)
+                        voter.copy(gambar = null)
                     }
                 } else {
                     voter

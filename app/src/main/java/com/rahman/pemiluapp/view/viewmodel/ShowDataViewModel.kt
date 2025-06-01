@@ -1,11 +1,13 @@
 package com.rahman.pemiluapp.view.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.rahman.pemiluapp.data.model.VoterDataModel
 import com.rahman.pemiluapp.domain.usecase.DataUsecase
 import com.rahman.pemiluapp.domain.util.Response
+import kotlinx.coroutines.launch
 
 class ShowDataViewModel(private val repository: DataUsecase) : BaseViewModel<List<VoterDataModel>>() {
-    fun getAllVoters() {
+    fun getAllVoters() = viewModelScope.launch {
         try {
             setLoading()
             val dataList = repository.getAllVotersData()
@@ -17,7 +19,7 @@ class ShowDataViewModel(private val repository: DataUsecase) : BaseViewModel<Lis
         }
     }
 
-    fun searchVoter(query: String?) {
+    fun searchVoter(query: String?) = viewModelScope.launch {
         try {
             setLoading()
             if (!query.isNullOrEmpty()) {
@@ -33,11 +35,11 @@ class ShowDataViewModel(private val repository: DataUsecase) : BaseViewModel<Lis
         }
     }
 
-    fun getDataVoter(nik: String?, onResponse: (Response<VoterDataModel>) -> Unit) {
+    fun getDataVoter(nik: String?, onResponse: (Response<VoterDataModel>) -> Unit) = viewModelScope.launch {
         repository.getDataVoter(nik, onResponse)
     }
 
-    fun deleteDataVoter(nik: String?, onResponse: (Response<Nothing>) -> Unit) {
+    fun deleteDataVoter(nik: String?, onResponse: (Response<Nothing>) -> Unit) = viewModelScope.launch {
         try {
             setLoading()
 
